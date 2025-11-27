@@ -1,16 +1,21 @@
-import React, { useState, useRef } from 'react';
-import { Upload, Camera, Loader2, Utensils, Flame, Droplets, Wheat, Candy, Activity, ScanLine, AlertCircle } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Upload, Camera, Loader2, Utensils, Flame, Droplets, Wheat, Candy, Activity, ScanLine, AlertCircle, Settings, X, Key } from 'lucide-react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
-
-// Initialize Gemini API
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
 function App() {
   const [image, setImage] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const [apiKey, setApiKey] = useState(() => localStorage.getItem('gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '');
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    if (apiKey) {
+      localStorage.setItem('gemini_api_key', apiKey);
+    }
+  }, [apiKey]);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -31,16 +36,22 @@ function App() {
 
   const analyzeImage = async () => {
     if (!image) return;
+    if (!apiKey) {
+      setShowSettings(true);
+      setError("請先設置您的 Gemini API Key 才能開始使用");
+      return;
+    }
 
     setAnalyzing(true);
     setError(null);
 
     try {
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
       // Prepare image for API
       const base64Data = image.split(',')[1];
       const mimeType = image.split(';')[0].split(':')[1];
-
-      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
       const prompt = `Analyze this image of food. Identify the food and estimate its nutritional content. 
       Return ONLY a valid JSON object with no markdown formatting or backticks. 
@@ -77,7 +88,10 @@ function App() {
       }
     } catch (err) {
       console.error("Analysis failed:", err);
-      setError(`分析失敗: ${err.message || err.toString()}`);
+      setError(`分析失敗: ${err.message || err.toString()}. 請檢查您的 API Key 是否正確。`);
+      if (err.message.includes('API key')) {
+        setShowSettings(true);
+      }
     } finally {
       setAnalyzing(false);
     }
@@ -85,10 +99,76 @@ function App() {
 
   return (
     <div className="container">
-      <header className="animate-fade-in">
-        <h1 className="title">NutriScan AI</h1>
-        <p className="subtitle">智能食物營養識別分析</p>
+      <header className="animate-fade-in" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h1 className="title">NutriScan AI</h1>
+          <p className="subtitle">智能食物營養識別分析</p>
+        </div>
+        <button 
+          onClick={() => setShowSettings(true)}
+          className="glass-card"
+          style={{ padding: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+        >
+          <Settings size={20} color="var(--text-secondary)" />
+        </button>
       </header>
+
+      {showSettings && (
+        <div className="animate-fade-in" style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 100,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
+        }}>
+          <div className="glass-card" style={{ width: '100%', maxWidth: '400px', position: 'relative' }}>
+            <button 
+              onClick={() => setShowSettings(false)}
+              style={{ position: 'absolute', right: '1rem', top: '1rem', background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              <X size={24} color="var(--text-secondary)" />
+            </button>
+            
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Key size={24} color="var(--accent-primary)" />
+              API 設置
+            </h2>
+            
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>
+                Gemini API Key
+              </label>
+              <input
+                type="password"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                placeholder="Enter your Gemini API Key"
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid var(--glass-border)',
+                  background: 'rgba(255,255,255,0.05)',
+                  color: 'var(--text-primary)',
+                  fontSize: '1rem'
+                }}
+              />
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+                您的 Key 僅存儲在本地瀏覽器中，不會發送到我們的服務器。
+                <br />
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-primary)', textDecoration: 'underline' }}>
+                  獲取免費 API Key
+                </a>
+              </p>
+            </div>
+
+            <button 
+              className="btn-primary" 
+              style={{ width: '100%' }}
+              onClick={() => setShowSettings(false)}
+            >
+              保存並繼續
+            </button>
+          </div>
+        </div>
+      )}
 
       <main className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
         <div className="glass-card" style={{ marginBottom: '2rem', textAlign: 'center' }}>
