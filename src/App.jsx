@@ -47,24 +47,63 @@ function App() {
 
     try {
       const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+      // 設置 temperature=0 以降低隨機性，提高一致性
+      const model = genAI.getGenerativeModel({
+        model: "gemini-2.5-flash",
+        generationConfig: {
+          temperature: 0,
+          topK: 1,
+          topP: 1,
+        }
+      });
 
       // Prepare image for API
       const base64Data = image.split(',')[1];
       const mimeType = image.split(';')[0].split(':')[1];
 
-      const prompt = `Analyze this image of food. Identify the food and estimate its nutritional content. 
-      Return ONLY a valid JSON object with no markdown formatting or backticks. 
-      The JSON object must have these keys:
-      - "calories": number (estimated total calories)
-      - "protein": number (grams)
-      - "carbs": number (grams)
-      - "fat": number (grams)
-      - "fiber": number (grams)
-      - "sugar": number (grams)
-      - "foodName": string (short name of the food identified)
-      
-      If the image is not food, return {"error": "Not food detected"}`;
+      const prompt = `You are a professional nutritionist and food analyst. Analyze this food image with precision and consistency.
+
+TASK:
+1. Identify the specific food items in the image
+2. Estimate the portion size (in grams or standard serving units)
+3. Calculate nutritional values based on standard food databases (USDA, nutrition tables)
+
+ESTIMATION GUIDELINES:
+- Use visual cues to estimate portion size (compare to standard plate size ~26cm diameter, utensils, or common objects)
+- For mixed dishes, identify and estimate each component separately, then sum the totals
+- Base calculations on standard nutritional databases (e.g., USDA FoodData Central)
+- Be conservative and realistic in estimates - avoid overestimating or underestimating
+- Consider cooking methods (fried foods have more fat/calories than steamed)
+
+PORTION SIZE REFERENCE:
+- 1 cup cooked rice ≈ 200g ≈ 200 calories
+- 1 medium chicken breast ≈ 150g ≈ 165 calories
+- 1 tablespoon oil ≈ 14g ≈ 120 calories
+- 1 medium apple ≈ 180g ≈ 95 calories
+
+OUTPUT FORMAT:
+Return ONLY a valid JSON object with NO markdown formatting, NO backticks, NO code blocks.
+The JSON must have these exact keys:
+
+{
+  "foodName": "specific food name in Chinese (e.g., 紅燒牛肉麵, 炒飯, 水果沙拉)",
+  "portionSize": "estimated portion (e.g., 1碗約300g, 1份約250g)",
+  "calories": <number: total calories in kcal>,
+  "protein": <number: grams, 1 decimal place>,
+  "carbs": <number: grams, 1 decimal place>,
+  "fat": <number: grams, 1 decimal place>,
+  "fiber": <number: grams, 1 decimal place>,
+  "sugar": <number: grams, 1 decimal place>,
+  "confidence": <number: 0-100, your confidence level in this estimate>
+}
+
+IMPORTANT:
+- All numeric values must be numbers, not strings
+- Round to 1 decimal place for macronutrients
+- If the image is NOT food, return: {"error": "Not food detected"}
+- Be consistent: the same food in the same portion should yield the same results
+
+Analyze the image now and return the JSON:`;
 
       const imagePart = {
         inlineData: {
@@ -104,7 +143,7 @@ function App() {
           <h1 className="title">NutriScan AI</h1>
           <p className="subtitle">智能食物營養識別分析</p>
         </div>
-        <button 
+        <button
           onClick={() => setShowSettings(true)}
           className="glass-card"
           style={{ padding: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
@@ -119,18 +158,18 @@ function App() {
           display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
         }}>
           <div className="glass-card" style={{ width: '100%', maxWidth: '400px', position: 'relative' }}>
-            <button 
+            <button
               onClick={() => setShowSettings(false)}
               style={{ position: 'absolute', right: '1rem', top: '1rem', background: 'none', border: 'none', cursor: 'pointer' }}
             >
               <X size={24} color="var(--text-secondary)" />
             </button>
-            
+
             <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <Key size={24} color="var(--accent-primary)" />
               API 設置
             </h2>
-            
+
             <div style={{ marginBottom: '1.5rem' }}>
               <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>
                 Gemini API Key
@@ -159,8 +198,8 @@ function App() {
               </p>
             </div>
 
-            <button 
-              className="btn-primary" 
+            <button
+              className="btn-primary"
               style={{ width: '100%' }}
               onClick={() => setShowSettings(false)}
             >
@@ -242,7 +281,19 @@ function App() {
             <div className="glass-card" style={{ marginBottom: '1rem', background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(129, 140, 248, 0.1))' }}>
               <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>{result.foodName}</h2>
+                {result.portionSize && (
+                  <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
+                    份量: {result.portionSize}
+                  </p>
+                )}
                 <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>AI 估算營養成分</p>
+                {result.confidence && (
+                  <div style={{ marginTop: '0.5rem', display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', borderRadius: '12px', background: result.confidence >= 80 ? 'rgba(74, 222, 128, 0.2)' : result.confidence >= 60 ? 'rgba(251, 191, 36, 0.2)' : 'rgba(248, 113, 113, 0.2)' }}>
+                    <span style={{ fontSize: '0.75rem', color: result.confidence >= 80 ? '#4ade80' : result.confidence >= 60 ? '#fbbf24' : '#f87171', fontWeight: '600' }}>
+                      置信度: {result.confidence}%
+                    </span>
+                  </div>
+                )}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', justifyContent: 'center' }}>
                 <div style={{ background: 'rgba(251, 191, 36, 0.2)', padding: '8px', borderRadius: '50%' }}>
