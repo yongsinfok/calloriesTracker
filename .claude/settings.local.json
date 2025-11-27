@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(vercel --version)",
+      "Bash(npm install -g vercel)",
+      "Bash(vercel login)",
+      "Bash(vercel)",
+      "Bash(vercel --prod --legacy-peer-deps)",
+      "Bash(vercel --prod)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
